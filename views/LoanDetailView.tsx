@@ -158,7 +158,7 @@ const SnapshotView: React.FC<{ loan: Loan; summary: string; loading: boolean }> 
                  <Card>
                     <div className="text-sm text-slate-400 mb-1">Interest Coverage</div>
                     <div className="text-2xl font-bold text-white">4.2x</div>
-                    <div className="text-xs text-emerald-500 mt-1">Healthy buffer (&gt; 2.5x)</div>
+                    <div className="text-xs text-emerald-500 mt-1">Healthy buffer (> 2.5x)</div>
                      <div className="mt-4 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
                         <div className="h-full bg-emerald-500 w-[60%]"></div>
                     </div>
