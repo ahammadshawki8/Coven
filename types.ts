@@ -27,6 +27,7 @@ export interface Loan {
   borrower: string;
   amount: number;
   currency: string;
+  interestRate: number; // New field
   startDate: string;
   maturityDate: string;
   status: LoanStatus;
@@ -35,4 +36,11 @@ export interface Loan {
   riskSummary?: string;
 }
 
-export type ViewState = 'LANDING' | 'DASHBOARD' | 'LOAN_LIST' | 'LOAN_DETAIL';
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+}
+
+export type ViewState = 'LANDING' | 'AUTH' | 'DASHBOARD' | 'LOAN_LIST' | 'LOAN_DETAIL' | 'REPORTS' | 'SETTINGS';

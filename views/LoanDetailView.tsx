@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Download, RefreshCw, AlertCircle, FileText, Activity } from 'lucide-react';
-import { MOCK_LOANS } from '../constants';
+import { ArrowLeft, Download, RefreshCw, AlertCircle, FileText, Activity, Trash2, Edit2, Plus } from 'lucide-react';
 import { Loan, Covenant, ComplianceStatus } from '../types';
 import { Card } from '../components/ui/Card';
 import { StatusBadge } from '../components/ui/StatusBadge';
@@ -9,11 +8,15 @@ import { generateLoanSummary, explainCovenantRisk } from '../services/geminiServ
 
 interface LoanDetailViewProps {
   loanId: string;
+  loans: Loan[];
   onBack: () => void;
+  onEditLoan: (loan: Loan) => void;
+  onDeleteLoan: (id: string) => void;
+  onAddCovenant: (loanId: string) => void;
 }
 
-const LoanDetailView: React.FC<LoanDetailViewProps> = ({ loanId, onBack }) => {
-  const loan = MOCK_LOANS.find(l => l.id === loanId);
+const LoanDetailView: React.FC<LoanDetailViewProps> = ({ loanId, loans, onBack, onEditLoan, onDeleteLoan, onAddCovenant }) => {
+  const loan = loans.find(l => l.id === loanId);
   const [activeTab, setActiveTab] = useState<'SNAPSHOT' | 'TIMELINE'>('TIMELINE');
   const [summary, setSummary] = useState<string>('');
   const [loadingSummary, setLoadingSummary] = useState(false);
@@ -85,8 +88,22 @@ const LoanDetailView: React.FC<LoanDetailViewProps> = ({ loanId, onBack }) => {
                 Timeline
             </button>
             <div className="w-px h-6 bg-slate-800 mx-2"></div>
-            <button className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-900 rounded-lg text-sm font-semibold hover:bg-white transition-colors">
-                <Download className="w-4 h-4" /> Export
+            
+            <button 
+                onClick={() => onEditLoan(loan)}
+                className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+                title="Edit Loan"
+            >
+                <Edit2 className="w-4 h-4" />
+            </button>
+             <button 
+                onClick={() => {
+                    if(confirm('Are you sure you want to delete this loan?')) onDeleteLoan(loan.id);
+                }}
+                className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                title="Delete Loan"
+            >
+                <Trash2 className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -109,6 +126,7 @@ const LoanDetailView: React.FC<LoanDetailViewProps> = ({ loanId, onBack }) => {
                     onSelectCovenant={handleCovenantClick}
                     aiExplanation={aiExplanation}
                     loadingExplanation={loadingExplanation}
+                    onAddCovenant={() => onAddCovenant(loan.id)}
                 />
             )}
         </AnimatePresence>
@@ -148,20 +166,14 @@ const SnapshotView: React.FC<{ loan: Loan; summary: string; loading: boolean }> 
 
             <div className="grid grid-cols-2 gap-4">
                  <Card>
-                    <div className="text-sm text-slate-400 mb-1">Leverage Ratio</div>
-                    <div className="text-2xl font-bold text-white">3.9x</div>
-                    <div className="text-xs text-amber-500 mt-1">Approaching limit (4.0x)</div>
-                    <div className="mt-4 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
-                        <div className="h-full bg-amber-500 w-[95%]"></div>
-                    </div>
+                    <div className="text-sm text-slate-400 mb-1">Interest Rate</div>
+                    <div className="text-2xl font-bold text-white">{loan.interestRate}%</div>
+                    <div className="text-xs text-slate-500 mt-1">Fixed Rate</div>
                  </Card>
                  <Card>
-                    <div className="text-sm text-slate-400 mb-1">Interest Coverage</div>
-                    <div className="text-2xl font-bold text-white">4.2x</div>
-                    <div className="text-xs text-emerald-500 mt-1">Healthy buffer (> 2.5x)</div>
-                     <div className="mt-4 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
-                        <div className="h-full bg-emerald-500 w-[60%]"></div>
-                    </div>
+                    <div className="text-sm text-slate-400 mb-1">Maturity Date</div>
+                    <div className="text-2xl font-bold text-white">{new Date(loan.maturityDate).getFullYear()}</div>
+                    <div className="text-xs text-emerald-500 mt-1">{new Date(loan.maturityDate).toLocaleDateString()}</div>
                  </Card>
             </div>
         </div>
@@ -202,9 +214,10 @@ interface TimelineViewProps {
     onSelectCovenant: (covenant: Covenant) => void;
     aiExplanation: string;
     loadingExplanation: boolean;
+    onAddCovenant: () => void;
 }
 
-const TimelineView: React.FC<TimelineViewProps> = ({ loan, selectedCovenant, onSelectCovenant, aiExplanation, loadingExplanation }) => {
+const TimelineView: React.FC<TimelineViewProps> = ({ loan, selectedCovenant, onSelectCovenant, aiExplanation, loadingExplanation, onAddCovenant }) => {
     // Sort covenants by date
     const sortedCovenants = [...loan.covenants].sort((a: Covenant, b: Covenant) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
 
@@ -212,9 +225,21 @@ const TimelineView: React.FC<TimelineViewProps> = ({ loan, selectedCovenant, onS
     <div className="flex flex-col lg:flex-row gap-8 h-full">
         {/* Timeline Visualization */}
         <div className="flex-1 min-h-[500px] relative">
-            <h2 className="text-2xl font-bold text-white mb-8">Covenant Timeline</h2>
+            <div className="flex justify-between items-center mb-8">
+                 <h2 className="text-2xl font-bold text-white">Covenant Timeline</h2>
+                 <button 
+                    onClick={onAddCovenant}
+                    className="flex items-center gap-2 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm border border-slate-700 transition-colors"
+                 >
+                    <Plus className="w-4 h-4" /> Add Covenant
+                 </button>
+            </div>
+           
             
-            <div className="relative pl-8 border-l border-slate-800 space-y-12">
+            <div className="relative pl-8 border-l border-slate-800 space-y-12 pb-20">
+                {sortedCovenants.length === 0 && (
+                    <div className="text-slate-500 italic text-sm py-10">No covenants tracked yet.</div>
+                )}
                 {sortedCovenants.map((cov: Covenant, idx: number) => {
                     const isSelected = selectedCovenant?.id === cov.id;
                     const date = new Date(cov.dueDate);

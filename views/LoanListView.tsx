@@ -1,14 +1,16 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Search, Filter, MoreHorizontal } from 'lucide-react';
-import { MOCK_LOANS, ANIMATION_VARIANTS } from '../constants';
+import { ANIMATION_VARIANTS } from '../constants';
 import { StatusBadge } from '../components/ui/StatusBadge';
+import { Loan } from '../types';
 
 interface LoanListViewProps {
+  loans: Loan[];
   onNavigate: (view: any, loanId?: string) => void;
 }
 
-const LoanListView: React.FC<LoanListViewProps> = ({ onNavigate }) => {
+const LoanListView: React.FC<LoanListViewProps> = ({ loans, onNavigate }) => {
   return (
     <div className="p-6 md:p-10 max-w-7xl mx-auto">
       <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-8 gap-4">
@@ -42,6 +44,7 @@ const LoanListView: React.FC<LoanListViewProps> = ({ onNavigate }) => {
                 <tr>
                     <th className="px-6 py-4">Borrower</th>
                     <th className="px-6 py-4">Amount</th>
+                    <th className="px-6 py-4">Interest</th>
                     <th className="px-6 py-4">Maturity</th>
                     <th className="px-6 py-4">Score</th>
                     <th className="px-6 py-4">Status</th>
@@ -49,7 +52,7 @@ const LoanListView: React.FC<LoanListViewProps> = ({ onNavigate }) => {
                 </tr>
             </thead>
             <tbody className="divide-y divide-slate-800">
-                {MOCK_LOANS.map((loan, idx) => (
+                {loans.map((loan, idx) => (
                     <motion.tr 
                         key={loan.id} 
                         variants={ANIMATION_VARIANTS.item}
@@ -62,6 +65,9 @@ const LoanListView: React.FC<LoanListViewProps> = ({ onNavigate }) => {
                         </td>
                         <td className="px-6 py-4 font-mono text-slate-300">
                             {loan.currency} {(loan.amount).toLocaleString()}
+                        </td>
+                         <td className="px-6 py-4 font-mono text-slate-300">
+                            {loan.interestRate}%
                         </td>
                         <td className="px-6 py-4">
                             {new Date(loan.maturityDate).toLocaleDateString()}

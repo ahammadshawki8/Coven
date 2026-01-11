@@ -3,26 +3,31 @@ import { motion } from 'framer-motion';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { FileText, AlertTriangle, CheckCircle, Plus } from 'lucide-react';
 import { Card } from '../components/ui/Card';
-import { ANIMATION_VARIANTS, MOCK_LOANS } from '../constants';
+import { ANIMATION_VARIANTS } from '../constants';
 import { Loan, ComplianceStatus } from '../types';
 
 interface DashboardViewProps {
+  loans: Loan[];
   onNavigate: (view: any, loanId?: string) => void;
+  onAddLoan: () => void;
 }
 
-const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
-  const totalLoans = MOCK_LOANS.length;
-  const totalCovenants = MOCK_LOANS.reduce((acc, loan) => acc + loan.covenants.length, 0);
-  const atRiskCovenants = MOCK_LOANS.reduce((acc, loan) => 
+const DashboardView: React.FC<DashboardViewProps> = ({ loans, onNavigate, onAddLoan }) => {
+  const totalLoans = loans.length;
+  const totalCovenants = loans.reduce((acc, loan) => acc + loan.covenants.length, 0);
+  const atRiskCovenants = loans.reduce((acc, loan) => 
     acc + loan.covenants.filter(c => c.status === ComplianceStatus.AtRisk || c.status === ComplianceStatus.Breached).length, 0);
   
   // Calculate average compliance score
-  const avgScore = Math.round(MOCK_LOANS.reduce((acc, loan) => acc + loan.complianceScore, 0) / totalLoans);
+  const avgScore = totalLoans > 0 ? Math.round(loans.reduce((acc, loan) => acc + loan.complianceScore, 0) / totalLoans) : 0;
 
   const ringData = [
     { name: 'Compliant', value: totalCovenants - atRiskCovenants, color: '#10b981' }, // Emerald
     { name: 'At Risk', value: atRiskCovenants, color: '#f59e0b' }, // Amber
   ];
+  
+  // Handle empty data for chart
+  const chartData = ringData.every(d => d.value === 0) ? [{name: 'Empty', value: 1, color: '#334155'}] : ringData;
 
   return (
     <div className="p-6 md:p-10 max-w-7xl mx-auto w-full">
@@ -32,9 +37,10 @@ const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
           <p className="text-slate-400 mt-1">Overview of your portfolio's health.</p>
         </div>
         <motion.button 
+          onClick={onAddLoan}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white px-5 py-2.5 rounded-lg border border-slate-700 transition-colors"
+          className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold px-5 py-2.5 rounded-lg transition-colors shadow-lg shadow-emerald-900/20"
         >
           <Plus className="w-4 h-4" />
           <span>New Loan</span>
@@ -95,7 +101,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
                      <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                           <Pie
-                            data={ringData}
+                            data={chartData}
                             cx="50%"
                             cy="50%"
                             innerRadius={35}
@@ -104,7 +110,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
                             dataKey="value"
                             stroke="none"
                           >
-                            {ringData.map((entry, index) => (
+                            {chartData.map((entry, index) => (
                               <Cell key={`cell-${index}`} fill={entry.color} />
                             ))}
                           </Pie>
@@ -117,13 +123,19 @@ const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
 
       <h2 className="text-xl font-semibold text-white mb-6">Active Portfolio</h2>
       
+      {loans.length === 0 ? (
+         <div className="text-center py-20 bg-slate-900/50 border border-slate-800 rounded-xl border-dashed">
+            <p className="text-slate-500 mb-4">No loans active in the portfolio.</p>
+            <button onClick={onAddLoan} className="text-emerald-400 font-medium hover:underline">Create your first loan</button>
+         </div>
+      ) : (
       <motion.div 
          variants={ANIMATION_VARIANTS.container}
          initial="hidden"
          animate="show"
          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
       >
-        {MOCK_LOANS.map((loan) => (
+        {loans.map((loan) => (
           <motion.div key={loan.id} variants={ANIMATION_VARIANTS.item}>
             <Card 
               onClick={() => onNavigate('LOAN_DETAIL', loan.id)} 
@@ -142,7 +154,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
                 </div>
               </div>
               <h3 className="text-lg font-semibold text-white group-hover:text-emerald-400 transition-colors">{loan.borrower}</h3>
-              <p className="text-sm text-slate-400 mb-6">Term Loan B • {loan.currency} {(loan.amount / 1000000).toFixed(1)}M</p>
+              <p className="text-sm text-slate-400 mb-6">Term Loan • {loan.currency} {(loan.amount / 1000000).toFixed(1)}M</p>
               
               <div className="flex justify-between items-center text-sm text-slate-500 border-t border-slate-800 pt-4">
                  <span>Matures {new Date(loan.maturityDate).getFullYear()}</span>
@@ -154,6 +166,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
           </motion.div>
         ))}
       </motion.div>
+      )}
     </div>
   );
 };
