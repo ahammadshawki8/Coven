@@ -3,9 +3,25 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { FileText, AlertTriangle, CheckCircle, Plus, TrendingDown, Clock, Zap, Home, Bell, X } from 'lucide-react';
 import { Card } from '../components/ui/Card';
-import { ANIMATION_VARIANTS } from '../constants';
 import { Loan, ComplianceStatus } from '../types';
 import ReactMarkdown from 'react-markdown';
+
+const ANIMATION_VARIANTS = {
+  container: {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+      },
+    },
+  },
+  item: {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 50, damping: 20 } },
+  },
+};
 
 interface DashboardViewProps {
   loans: Loan[];

@@ -1,9 +1,25 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Filter, ChevronRight, Home } from 'lucide-react';
-import { ANIMATION_VARIANTS } from '../constants';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { Loan } from '../types';
+
+const ANIMATION_VARIANTS = {
+  container: {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+      },
+    },
+  },
+  item: {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 50, damping: 20 } },
+  },
+};
 
 interface LoanListViewProps {
   loans: Loan[];
