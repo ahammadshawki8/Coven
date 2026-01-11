@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Coven | Intelligent Covenant Management</title>
+    <link rel="icon" type="image/png" href="/brand.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -51,6 +52,21 @@
       ::-webkit-scrollbar-thumb:hover {
         background: #475569; 
       }
+      /* Print Styles */
+      @media print {
+        body {
+          background-color: white !important;
+          color: black !important;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        .print\\:hidden {
+          display: none !important;
+        }
+        .print\\:block {
+          display: block !important;
+        }
+      }
     </style>
   <script type="importmap">
 {
@@ -68,5 +84,6 @@
 </head>
   <body>
     <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
   </body>
 </html>

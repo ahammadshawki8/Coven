@@ -24,6 +24,9 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'md' })
     case LoanStatus.Pending:
       colorClass = 'bg-blue-500/10 text-blue-400 border-blue-500/20';
       break;
+    case ComplianceStatus.Waived:
+      colorClass = 'bg-purple-500/10 text-purple-400 border-purple-500/20';
+      break;
   }
 
   const sizeClass = size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-3 py-1 text-sm';

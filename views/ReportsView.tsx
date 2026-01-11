@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Download, Filter, Calendar } from 'lucide-react';
+import { FileText, Download, Filter, Calendar, Home, ChevronRight } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import { MOCK_LOANS } from '../constants';
 import { Loan } from '../types';
@@ -28,38 +28,45 @@ const ReportsView: React.FC<ReportsViewProps> = ({ loans }) => {
   ];
 
   return (
-    <div className="p-6 md:p-10 max-w-7xl mx-auto">
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
+    <div className="p-4 md:p-6 lg:p-10 max-w-7xl mx-auto">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
         <div>
-           <h1 className="text-3xl font-bold text-white tracking-tight">Reports Center</h1>
-           <p className="text-slate-400 mt-1">Generate and export insights for stakeholders.</p>
+           <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">Reports Center</h1>
+           <p className="text-slate-400 mt-1 text-sm md:text-base">Generate and export insights for stakeholders.</p>
         </div>
-        <div className="flex gap-3">
-             <button className="flex items-center gap-2 px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-300 hover:text-white transition-colors">
-                <Calendar className="w-4 h-4" /> Last 30 Days
+        <div className="flex gap-2 md:gap-3">
+             <button className="flex items-center gap-2 px-3 md:px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-300 hover:text-white transition-colors text-sm">
+                <Calendar className="w-4 h-4" /> <span className="hidden sm:inline">Last 30 Days</span><span className="sm:hidden">30d</span>
              </button>
-             <button className="flex items-center gap-2 px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-300 hover:text-white transition-colors">
-                <Filter className="w-4 h-4" /> Filter
+             <button className="flex items-center gap-2 px-3 md:px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-300 hover:text-white transition-colors text-sm">
+                <Filter className="w-4 h-4" /> <span className="hidden sm:inline">Filter</span>
              </button>
         </div>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Breadcrumb */}
+      <div className="flex items-center gap-2 text-sm text-slate-400 mb-6">
+        <Home className="w-4 h-4" />
+        <ChevronRight className="w-3 h-3" />
+        <span className="text-white">Reports</span>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
         {reports.map((report) => (
             <Card key={report.id} className="hover:border-emerald-500/30 transition-all">
-                <div className="flex items-start justify-between mb-4">
-                    <div className="p-3 bg-slate-800 rounded-lg text-emerald-400">
-                        <FileText className="w-6 h-6" />
+                <div className="flex items-start justify-between mb-3 md:mb-4">
+                    <div className="p-2 md:p-3 bg-slate-800 rounded-lg text-emerald-400">
+                        <FileText className="w-5 h-5 md:w-6 md:h-6" />
                     </div>
                     <span className="px-2 py-1 text-xs font-medium bg-slate-800 text-slate-400 rounded border border-slate-700">{report.type}</span>
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">{report.title}</h3>
-                <p className="text-slate-400 text-sm mb-6 h-10">{report.desc}</p>
+                <h3 className="text-base md:text-lg font-bold text-white mb-2">{report.title}</h3>
+                <p className="text-slate-400 text-xs md:text-sm mb-4 md:mb-6 min-h-[40px]">{report.desc}</p>
                 
                 <button 
                     onClick={() => handleDownload(report.id)}
                     disabled={!!generating}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg border border-slate-700 transition-all disabled:opacity-70"
+                    className="w-full flex items-center justify-center gap-2 py-2 md:py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg border border-slate-700 transition-all disabled:opacity-70 text-sm"
                 >
                     {generating === report.id ? (
                         <>
@@ -76,8 +83,10 @@ const ReportsView: React.FC<ReportsViewProps> = ({ loans }) => {
         ))}
       </div>
 
-      <h2 className="text-xl font-bold text-white mt-12 mb-6">Recent Exports</h2>
-      <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+      <h2 className="text-lg md:text-xl font-bold text-white mt-8 md:mt-12 mb-4 md:mb-6">Recent Exports</h2>
+      
+      {/* Desktop Table */}
+      <div className="hidden md:block bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
          <table className="w-full text-left text-sm text-slate-400">
             <thead className="bg-slate-950/50 text-slate-200 font-medium uppercase text-xs">
                 <tr>
@@ -102,6 +111,24 @@ const ReportsView: React.FC<ReportsViewProps> = ({ loans }) => {
                 </tr>
             </tbody>
          </table>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-3">
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
+          <div className="flex justify-between items-start mb-2">
+            <span className="text-white font-medium">Portfolio Compliance Summary</span>
+            <span className="text-emerald-400 text-xs">Completed</span>
+          </div>
+          <div className="text-xs text-slate-500">Oct 24, 2024 • Admin User</div>
+        </div>
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
+          <div className="flex justify-between items-start mb-2">
+            <span className="text-white font-medium">Risk Assessment Matrix</span>
+            <span className="text-emerald-400 text-xs">Completed</span>
+          </div>
+          <div className="text-xs text-slate-500">Oct 20, 2024 • Admin User</div>
+        </div>
       </div>
     </div>
   );

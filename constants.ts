@@ -1,4 +1,4 @@
-import { Loan, LoanStatus, ComplianceStatus } from './types';
+import { Loan, LoanStatus, ComplianceStatus, TimelineEventType } from './types';
 
 export const MOCK_LOANS: Loan[] = [
   {
@@ -11,6 +11,90 @@ export const MOCK_LOANS: Loan[] = [
     maturityDate: '2028-01-15',
     status: LoanStatus.Active,
     complianceScore: 92,
+    uploadedDocuments: ['loan_agreement_acme.pdf'],
+    loanDNA: {
+      extractedAt: '2023-01-16',
+      sourceDocument: 'loan_agreement_acme.pdf',
+      confidence: 94,
+      keyTerms: {
+        facilityType: 'Term Loan B',
+        purpose: 'Working Capital & Expansion',
+        securityType: 'Senior Secured',
+        governingLaw: 'New York',
+      },
+      extractedCovenants: [
+        { title: 'Leverage Ratio', type: 'Financial', threshold: '< 4.0x', frequency: 'Quarterly', description: 'Total Net Debt to EBITDA' },
+        { title: 'Interest Coverage', type: 'Financial', threshold: '> 2.5x', frequency: 'Quarterly', description: 'EBITDA to Interest Expense' },
+        { title: 'Quarterly Financials', type: 'Reporting', threshold: 'Within 45 days', frequency: 'Quarterly', description: 'Unaudited financial statements' },
+      ],
+      riskFactors: [
+        'High leverage in cyclical industry',
+        'Concentration risk in single market segment',
+        'Upcoming capex requirements may strain cash flow',
+      ],
+      summary: 'Senior secured term loan for industrial manufacturing company with standard financial covenants. Moderate risk profile with tight leverage headroom.',
+    },
+    riskPredictions: [
+      {
+        covenantId: 'cov_2',
+        covenantTitle: 'Leverage Ratio',
+        currentValue: '3.9x',
+        threshold: '< 4.0x',
+        predictedBreachDate: '2024-06-30',
+        probability: 72,
+        trend: 'deteriorating',
+        explanation: 'Based on declining EBITDA trend (-8% QoQ) and stable debt levels, leverage ratio is projected to exceed 4.0x threshold within 2 quarters. Recommend proactive engagement with borrower.',
+      },
+      {
+        covenantId: 'cov_3',
+        covenantTitle: 'Interest Coverage',
+        currentValue: '4.2x',
+        threshold: '> 2.5x',
+        predictedBreachDate: '',
+        probability: 15,
+        trend: 'stable',
+        explanation: 'Interest coverage remains healthy with significant buffer. Low breach probability unless significant EBITDA deterioration occurs.',
+      },
+    ],
+    timelineEvents: [
+      {
+        id: 'evt_001',
+        type: TimelineEventType.LoanCreated,
+        date: '2023-01-15',
+        title: 'Loan Facility Established',
+        description: 'USD 15M Term Loan B facility established with Acme Corp Industrial. 5-year tenor with quarterly amortization.',
+      },
+      {
+        id: 'evt_002',
+        type: TimelineEventType.DocumentUploaded,
+        date: '2023-01-16',
+        title: 'Loan Agreement Uploaded',
+        description: 'Original loan agreement document uploaded and processed. AI extracted 3 covenants with 94% confidence.',
+      },
+      {
+        id: 'evt_003',
+        type: TimelineEventType.CovenantAdded,
+        date: '2023-01-16',
+        title: 'Covenants Configured',
+        description: 'Financial covenants (Leverage Ratio, Interest Coverage) and Reporting covenant (Quarterly Financials) added to monitoring.',
+      },
+      {
+        id: 'evt_004',
+        type: TimelineEventType.StatusChanged,
+        date: '2023-09-30',
+        title: 'Leverage Ratio Status Changed',
+        description: 'Leverage Ratio covenant status changed from Compliant to At Risk. Current value 3.9x approaching threshold of 4.0x.',
+        relatedCovenantId: 'cov_2',
+      },
+      {
+        id: 'evt_005',
+        type: TimelineEventType.RiskAlert,
+        date: '2023-10-15',
+        title: 'Predictive Alert: Potential Breach',
+        description: 'AI analysis indicates 72% probability of Leverage Ratio breach within 2 quarters based on EBITDA trend deterioration.',
+        relatedCovenantId: 'cov_2',
+      },
+    ],
     covenants: [
       {
         id: 'cov_1',
@@ -19,6 +103,7 @@ export const MOCK_LOANS: Loan[] = [
         dueDate: '2024-03-31',
         status: ComplianceStatus.Compliant,
         description: 'Submission of unaudited quarterly financial statements within 45 days of quarter end.',
+        frequency: 'Quarterly',
       },
       {
         id: 'cov_2',
@@ -29,6 +114,7 @@ export const MOCK_LOANS: Loan[] = [
         value: '3.9x',
         threshold: '< 4.0x',
         description: 'Total Net Debt to EBITDA must not exceed 4.0x.',
+        frequency: 'Quarterly',
       },
       {
         id: 'cov_3',
@@ -38,6 +124,7 @@ export const MOCK_LOANS: Loan[] = [
         status: ComplianceStatus.Upcoming,
         threshold: '> 2.5x',
         description: 'EBITDA to Interest Expense ratio must be maintained above 2.5x.',
+        frequency: 'Quarterly',
       },
     ],
   },
@@ -51,6 +138,72 @@ export const MOCK_LOANS: Loan[] = [
     maturityDate: '2027-06-01',
     status: LoanStatus.Active,
     complianceScore: 78,
+    uploadedDocuments: ['helios_facility_agreement.pdf', 'amendment_1.pdf'],
+    loanDNA: {
+      extractedAt: '2022-06-02',
+      sourceDocument: 'helios_facility_agreement.pdf',
+      confidence: 91,
+      keyTerms: {
+        facilityType: 'Revolving Credit Facility',
+        purpose: 'Project Finance - Solar Installation',
+        securityType: 'Asset-Backed',
+        governingLaw: 'Delaware',
+      },
+      extractedCovenants: [
+        { title: 'Debt Service Coverage', type: 'Financial', threshold: '> 1.25x', frequency: 'Quarterly', description: 'DSCR on rolling 12-month basis' },
+        { title: 'Annual Audit', type: 'Reporting', threshold: 'Within 90 days', frequency: 'Annual', description: 'Audited financials by Big 4 firm' },
+      ],
+      riskFactors: [
+        'Project execution risk on new installations',
+        'Regulatory dependency on renewable energy incentives',
+        'Weather-related revenue variability',
+      ],
+      summary: 'Asset-backed revolving facility for renewable energy company. Higher risk profile due to project execution dependencies and regulatory exposure.',
+    },
+    riskPredictions: [
+      {
+        covenantId: 'cov_5',
+        covenantTitle: 'Debt Service Coverage',
+        currentValue: '1.1x',
+        threshold: '> 1.25x',
+        predictedBreachDate: '2024-01-15',
+        probability: 95,
+        trend: 'deteriorating',
+        explanation: 'DSCR already below threshold at 1.1x. Immediate breach confirmed. Recommend initiating waiver discussion or amendment process.',
+      },
+    ],
+    timelineEvents: [
+      {
+        id: 'evt_010',
+        type: TimelineEventType.LoanCreated,
+        date: '2022-06-01',
+        title: 'Revolving Facility Established',
+        description: 'USD 45M Revolving Credit Facility established for Helios Energy solar project financing.',
+      },
+      {
+        id: 'evt_011',
+        type: TimelineEventType.StatusChanged,
+        date: '2023-06-30',
+        title: 'DSCR Covenant Breached',
+        description: 'Debt Service Coverage Ratio fell to 1.1x, below the required 1.25x threshold. Breach notification sent to borrower.',
+        relatedCovenantId: 'cov_5',
+      },
+      {
+        id: 'evt_012',
+        type: TimelineEventType.AmendmentMade,
+        date: '2023-08-15',
+        title: 'Amendment 1 Executed',
+        description: 'First amendment executed providing temporary DSCR covenant relief. New threshold of 1.1x effective through Q4 2023.',
+      },
+      {
+        id: 'evt_013',
+        type: TimelineEventType.RiskAlert,
+        date: '2023-11-01',
+        title: 'Amendment Expiry Warning',
+        description: 'Temporary covenant relief expires in 60 days. Current DSCR of 1.1x will breach original 1.25x threshold.',
+        relatedCovenantId: 'cov_5',
+      },
+    ],
     covenants: [
       {
         id: 'cov_4',
@@ -59,6 +212,7 @@ export const MOCK_LOANS: Loan[] = [
         dueDate: '2023-12-31',
         status: ComplianceStatus.Compliant,
         description: 'Audited annual financials by KPMG or equivalent.',
+        frequency: 'Annual',
       },
       {
         id: 'cov_5',
@@ -69,6 +223,7 @@ export const MOCK_LOANS: Loan[] = [
         value: '1.1x',
         threshold: '> 1.25x',
         description: 'DSCR must be greater than 1.25x calculated on a rolling 12-month basis.',
+        frequency: 'Quarterly',
       },
     ],
   },
@@ -82,6 +237,16 @@ export const MOCK_LOANS: Loan[] = [
     maturityDate: '2026-09-01',
     status: LoanStatus.Pending,
     complianceScore: 100,
+    uploadedDocuments: [],
+    timelineEvents: [
+      {
+        id: 'evt_020',
+        type: TimelineEventType.LoanCreated,
+        date: '2023-09-01',
+        title: 'Loan Application Received',
+        description: 'USD 8.5M term loan application received from Omni Retail Group. Pending document upload and covenant configuration.',
+      },
+    ],
     covenants: [],
   },
 ];
