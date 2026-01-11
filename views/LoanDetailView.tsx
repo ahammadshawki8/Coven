@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Download, RefreshCw, FileText, Activity, Trash2, Edit2, Plus, Printer, Edit3, ShieldCheck, Upload, TrendingUp, TrendingDown, Minus, AlertTriangle, Clock, History, Dna, BarChart3, Home, ChevronRight } from 'lucide-react';
-import { Loan, Covenant, ComplianceStatus, TimelineEvent, TimelineEventType, RiskPrediction } from '../types';
+import { Loan, Covenant, ComplianceStatus, TimelineEventType, RiskPrediction } from '../types';
 import { Card } from '../components/ui/Card';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { generateLoanSummary, explainCovenantRisk, generateRiskPredictions, generateWhatChangedExplanation } from '../services/geminiService';
+import ReactMarkdown from 'react-markdown';
 
 interface LoanDetailViewProps {
   loanId: string;
@@ -238,7 +239,9 @@ const SnapshotView: React.FC<SnapshotViewProps> = ({ loan, summary, loading, onD
               <div className="h-4 bg-slate-800 rounded w-4/6"></div>
             </div>
           ) : (
-            <p className="text-slate-300 leading-relaxed">{summary}</p>
+            <div className="text-slate-300 leading-relaxed prose prose-invert prose-sm max-w-none prose-p:my-2 prose-strong:text-white prose-ul:my-2 prose-li:my-0">
+              <ReactMarkdown>{summary}</ReactMarkdown>
+            </div>
           )}
         </Card>
 
@@ -275,7 +278,9 @@ const SnapshotView: React.FC<SnapshotViewProps> = ({ loan, summary, loading, onD
                   {pred.predictedBreachDate && (
                     <div className="text-xs text-slate-500 mb-2">Predicted breach: {pred.predictedBreachDate}</div>
                   )}
-                  <p className="text-sm text-slate-400">{pred.explanation}</p>
+                  <div className="text-sm text-slate-400 prose prose-invert prose-sm max-w-none prose-p:my-1">
+                    <ReactMarkdown>{pred.explanation}</ReactMarkdown>
+                  </div>
                 </div>
               ))}
             </div>
@@ -415,7 +420,9 @@ const LoanDNAView: React.FC<{ loan: Loan; onUploadDocument: () => void }> = ({ l
 
       <Card className="bg-slate-900/50">
         <h3 className="text-lg font-semibold text-white mb-3">AI Summary</h3>
-        <p className="text-slate-300 leading-relaxed">{dna.summary}</p>
+        <div className="text-slate-300 leading-relaxed prose prose-invert prose-sm max-w-none prose-p:my-2">
+          <ReactMarkdown>{dna.summary}</ReactMarkdown>
+        </div>
         <div className="mt-4 text-xs text-slate-500">Extracted on {dna.extractedAt}</div>
       </Card>
     </motion.div>
@@ -463,7 +470,9 @@ const HistoryView: React.FC<{ loan: Loan; whatChanged: string; loading: boolean 
             <div className="h-4 bg-slate-800 rounded w-4/6"></div>
           </div>
         ) : (
-          <div className="text-slate-300 leading-relaxed whitespace-pre-line text-sm">{whatChanged}</div>
+          <div className="text-slate-300 leading-relaxed text-sm prose prose-invert prose-sm max-w-none prose-p:my-2 prose-strong:text-white prose-h2:text-base prose-h2:text-white prose-h2:font-semibold prose-h2:mt-4 prose-h2:mb-2">
+            <ReactMarkdown>{whatChanged}</ReactMarkdown>
+          </div>
         )}
       </Card>
 
@@ -516,7 +525,9 @@ interface TimelineViewProps {
 }
 
 const TimelineView: React.FC<TimelineViewProps> = ({ loan, selectedCovenant, onSelectCovenant, aiExplanation, loadingExplanation, onAddCovenant, onUpdateStatus, onUploadDocument }) => {
+  const [showDocModal, setShowDocModal] = useState(false);
   const sortedCovenants = [...loan.covenants].sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
+  const uploadedDocs = loan.uploadedDocuments || [];
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col lg:flex-row gap-6">
@@ -583,8 +594,8 @@ const TimelineView: React.FC<TimelineViewProps> = ({ loan, selectedCovenant, onS
                           {/* Mobile AI */}
                           <div className="lg:hidden mt-3 pt-3 border-t border-slate-700/50">
                             <div className="text-emerald-400 text-xs font-medium mb-2 flex items-center gap-1"><FileText className="w-3 h-3" /> AI Analysis</div>
-                            <div className="bg-slate-950/50 rounded-lg p-3 border border-slate-800 text-xs text-slate-300">
-                              {loadingExplanation ? <RefreshCw className="w-4 h-4 animate-spin" /> : aiExplanation}
+                            <div className="bg-slate-950/50 rounded-lg p-3 border border-slate-800 text-xs text-slate-300 prose prose-invert prose-xs max-w-none">
+                              {loadingExplanation ? <RefreshCw className="w-4 h-4 animate-spin" /> : <ReactMarkdown>{aiExplanation}</ReactMarkdown>}
                             </div>
                           </div>
                         </motion.div>
@@ -606,17 +617,126 @@ const TimelineView: React.FC<TimelineViewProps> = ({ loan, selectedCovenant, onS
               <div className="flex items-center gap-2 text-emerald-400 mb-3 text-sm font-medium"><FileText className="w-4 h-4" /> AI Analysis</div>
               <h3 className="text-white font-bold text-lg mb-2">{selectedCovenant.title}</h3>
               <p className="text-slate-400 text-sm mb-4">{selectedCovenant.description}</p>
-              <div className="bg-slate-950/50 rounded-xl p-4 border border-slate-800 text-sm text-slate-300">
-                {loadingExplanation ? <div className="flex items-center gap-2"><RefreshCw className="w-4 h-4 animate-spin" /> Analyzing...</div> : aiExplanation}
+              <div className="bg-slate-950/50 rounded-xl p-4 border border-slate-800 text-sm text-slate-300 prose prose-invert prose-sm max-w-none prose-p:my-2">
+                {loadingExplanation ? <div className="flex items-center gap-2"><RefreshCw className="w-4 h-4 animate-spin" /> Analyzing...</div> : <ReactMarkdown>{aiExplanation}</ReactMarkdown>}
               </div>
               <div className="mt-4 flex gap-2">
                 <button onClick={() => onUpdateStatus(selectedCovenant)} className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white text-sm font-medium flex items-center justify-center gap-1">
                   <Edit3 className="w-3 h-3" /> Update
                 </button>
-                <button className="flex-1 py-2 border border-slate-600 hover:bg-slate-800 rounded-lg text-slate-300 text-sm">View Doc</button>
+                <button 
+                  onClick={() => setShowDocModal(true)}
+                  disabled={uploadedDocs.length === 0}
+                  className="flex-1 py-2 border border-slate-600 hover:bg-slate-800 rounded-lg text-slate-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  View Doc {uploadedDocs.length > 0 && `(${uploadedDocs.length})`}
+                </button>
               </div>
             </div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Document Viewer Modal */}
+      <AnimatePresence>
+        {showDocModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowDocModal(false)}
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-2xl bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col"
+            >
+              <div className="flex items-center justify-between p-4 border-b border-slate-800">
+                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-emerald-400" />
+                  Uploaded Documents
+                </h3>
+                <button
+                  onClick={() => setShowDocModal(false)}
+                  className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto p-4">
+                {uploadedDocs.length === 0 ? (
+                  <div className="text-center py-12">
+                    <FileText className="w-12 h-12 text-slate-600 mx-auto mb-4" />
+                    <p className="text-slate-400">No documents uploaded yet.</p>
+                    <button 
+                      onClick={() => { setShowDocModal(false); onUploadDocument(); }}
+                      className="mt-4 text-emerald-400 hover:underline"
+                    >
+                      Upload a document
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {uploadedDocs.map((doc, idx) => (
+                      <div key={idx} className="bg-slate-800 border border-slate-700 rounded-xl p-4 hover:border-slate-600 transition-colors">
+                        <div className="flex items-start gap-4">
+                          <div className="p-3 bg-slate-900 rounded-lg">
+                            <FileText className="w-8 h-8 text-emerald-400" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-white font-medium truncate">{doc}</h4>
+                            <p className="text-sm text-slate-400 mt-1">
+                              Uploaded on {loan.loanDNA?.extractedAt || 'Unknown date'}
+                            </p>
+                            <div className="flex items-center gap-2 mt-3">
+                              <span className="px-2 py-1 text-xs bg-emerald-500/10 text-emerald-400 rounded border border-emerald-500/20">
+                                AI Processed
+                              </span>
+                              <span className="px-2 py-1 text-xs bg-slate-700 text-slate-300 rounded">
+                                {doc.split('.').pop()?.toUpperCase() || 'PDF'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Document Preview Section */}
+                        <div className="mt-4 p-4 bg-slate-900 rounded-lg border border-slate-700">
+                          <div className="text-xs text-slate-500 uppercase tracking-wide mb-2">Document Preview</div>
+                          <div className="text-sm text-slate-300 space-y-2">
+                            <p><strong className="text-white">Facility Type:</strong> {loan.loanDNA?.keyTerms.facilityType || 'N/A'}</p>
+                            <p><strong className="text-white">Purpose:</strong> {loan.loanDNA?.keyTerms.purpose || 'N/A'}</p>
+                            <p><strong className="text-white">Security:</strong> {loan.loanDNA?.keyTerms.securityType || 'N/A'}</p>
+                            <p><strong className="text-white">Governing Law:</strong> {loan.loanDNA?.keyTerms.governingLaw || 'N/A'}</p>
+                            <p><strong className="text-white">Covenants Extracted:</strong> {loan.loanDNA?.extractedCovenants.length || 0}</p>
+                            <p><strong className="text-white">AI Confidence:</strong> {loan.loanDNA?.confidence || 0}%</p>
+                          </div>
+                          {loan.loanDNA?.summary && (
+                            <div className="mt-3 pt-3 border-t border-slate-700">
+                              <div className="text-xs text-slate-500 uppercase tracking-wide mb-1">AI Summary</div>
+                              <p className="text-sm text-slate-400">{loan.loanDNA.summary}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              
+              <div className="p-4 border-t border-slate-800">
+                <button
+                  onClick={() => { setShowDocModal(false); onUploadDocument(); }}
+                  className="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
+                >
+                  <Upload className="w-4 h-4" /> Upload New Document
+                </button>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </motion.div>

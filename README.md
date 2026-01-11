@@ -146,9 +146,10 @@ API_KEY=your_gemini_api_key
 - Demo mode - any credentials work
 
 ### Dashboard
-- **Active Portfolio** - Total loans, exposure, and average compliance
-- **Predictive Risk Alerts** - AI-identified potential issues
-- **Recent Activity** - Timeline of portfolio events
+- **Stats Overview** - Active loans, covenants count, at-risk items, portfolio health score
+- **Active Portfolio** - Loan cards grid (75% width) showing borrower, facility type, amount, and compliance score
+- **Recent Activity** - Timeline sidebar (25% width) with clickable events
+- **Risk Alerts Bell** - Notification icon with badge count; click to open modal with AI-identified potential issues
 
 ### Loan List
 - Searchable loan table
